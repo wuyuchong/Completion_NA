@@ -123,6 +123,4 @@ write.csv(data_complete, "整理完毕(for mac).csv", fileEncoding = "UTF-8")
 
 ***
 
-[查看代码](https://github.com/wuyuchong/Completion_NA)
-
-[下载整理后的数据](https://github.com/wuyuchong/Completion_NA)
+[下载代码及整理后数据](https://github.com/wuyuchong/Completion_NA)
