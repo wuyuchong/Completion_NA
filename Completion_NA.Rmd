@@ -1,0 +1,33 @@
+---
+title: "Completion_NA"
+output: 
+  html_document:
+    theme: dark
+    toc: yes
+---
+
+# 加载
+
+```{r message = FLASE}
+library(DT)
+library(tidyverse)
+```
+
+# 数据导入
+
+```{r}
+data = read.csv("1987-2018分省专利受理量数据.csv", stringsAsFactors = FALSE)
+datatable(data)
+```
+
+# 计算
+
+首先我们先删除掉重庆那一行
+
+```{r}
+data_del = data %>% 
+  filter(地区 != "重庆市")
+```
+
+# 然后计算全国平均变化率
+
