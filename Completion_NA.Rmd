@@ -61,7 +61,7 @@ data_rate
 
 然后取平均值：
 
-```{r}
+```{r message=FALSE}
 data_average = data_rate %>%
   select(-"地区") %>% 
   summarise_each(funs(mean))
