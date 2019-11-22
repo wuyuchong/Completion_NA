@@ -1,14 +1,16 @@
 ---
 title: "Completion_NA"
+date: "[查看代码文件](https://github.com/wuyuchong/Completion_NA)"
 output: 
   html_document:
-    theme: dark
     toc: yes
+    theme: dark
+    df_print: paged
 ---
 
 # 加载
 
-```{r message = FLASE}
+```{r message = FALSE}
 library(DT)
 library(tidyverse)
 ```
@@ -17,7 +19,8 @@ library(tidyverse)
 
 ```{r}
 data = read.csv("1987-2018分省专利受理量数据.csv", stringsAsFactors = FALSE)
-datatable(data)
+data = data[, colSums(is.na(data)) != nrow(data)]
+data
 ```
 
 # 计算
@@ -27,7 +30,68 @@ datatable(data)
 ```{r}
 data_del = data %>% 
   filter(地区 != "重庆市")
+
+data_del
 ```
 
-# 然后计算全国平均变化率
+然后计算每年各省份增长率
 
+首先我们复制一份表格用于填写增长率，然后计算每个单元格：
+
+$$ rate(\%) = \frac{ThisYear - LastYear}{LastYear}$$
+
+```{r}
+data_rate = data_del
+
+# loop for each column
+for(j in 2: (ncol(data_del) - 1))
+{
+  # loop for each line
+  {
+    for(i in 1: nrow(data_del))
+    {
+      # fill in the cell of the table of change rate
+      data_rate[i,j] = (data_del[i,j] - data_del[i,j+1]) / data_del[i,j+1]
+    }
+  }
+}
+
+data_rate
+```
+
+然后取平均值：
+
+```{r}
+data_average = data_rate %>%
+  select(-"地区") %>% 
+  summarise_each(funs(mean))
+
+add_col = data.frame(地区 = "全国平均")
+data_average = cbind(add_col, data_average)
+
+data_average
+```
+
+使用每年平均增长率补全重庆市：
+
+```{r}
+data_chongqing = data %>% 
+  filter(地区 == "重庆市")
+
+for(j in 24:ncol(data_chongqing))
+{
+  data_chongqing[1, j] = data_chongqing[1, j-1] / (1 + data_average[1, j-1])
+}
+
+data_complete = rbind(data_chongqing, data_del)
+data_complete
+
+write.csv(data_complete, "整理完毕(for windows).csv", fileEncoding = "GB18030")
+write.csv(data_complete, "整理完毕(for mac).csv", fileEncoding = "UTF-8")
+```
+
+***
+
+[查看代码](https://github.com/wuyuchong/Completion_NA)
+
+[下载整理后的数据](https://github.com/wuyuchong/Completion_NA)
