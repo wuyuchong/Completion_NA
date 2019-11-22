@@ -29,7 +29,7 @@ data
 
 ```{r}
 data_del = data %>% 
-  filter(地区 != "重庆市")
+  filter(地区 != c("海南省","重庆市"))
 
 data_del
 ```
@@ -61,7 +61,7 @@ data_rate
 
 然后取平均值：
 
-```{r message=FALSE}
+```{r warning=FALSE}
 data_average = data_rate %>%
   select(-"地区") %>% 
   summarise_each(funs(mean))
@@ -85,7 +85,38 @@ for(j in 24:ncol(data_chongqing))
 
 data_complete = rbind(data_chongqing, data_del)
 data_complete
+```
 
+使用每年平均增长率补全海南省：
+
+```{r}
+data_hainan = data %>% 
+  filter(地区 == "海南省")
+
+data_hainan[1, 33] = data_hainan[1, 33-1] / (1 + data_average[1, 33-1])
+
+data_complete = rbind(data_hainan, data_complete)
+data_complete
+```
+
+将所有的小数转换为整数
+
+```{r}
+for(i in 1:nrow(data_complete))
+{
+  for(j in 2:ncol(data_complete))
+  {
+    data_complete[i,j] = data_complete[i,j] %>% 
+      round(0)
+  }
+}
+```
+
+
+# 整理完毕
+
+```{r}
+data_complete
 write.csv(data_complete, "整理完毕(for windows).csv", fileEncoding = "GB18030")
 write.csv(data_complete, "整理完毕(for mac).csv", fileEncoding = "UTF-8")
 ```
